@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"github.com/islavallee/librapi/pkg/http"
 )
 
 func main() {
-	fmt.Println("Hello, it's me")
+	s := http.NewServer(http.NewHandler())
+	s.Serve(8080)
 }

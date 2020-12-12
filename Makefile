@@ -38,16 +38,16 @@ test-unit: ## Launch unit tests.
 test-functional: ## Launch functional tests. e.g behat, JBehave, Behave, CucumberJS, Cucumber etc...
 	echo "no functional tests"
 
-test-integration: ## Launch integration tests. e.g. pytest, jest (js), phpunit, JUnit (java) etc ...
+test-integration: ## Launch integration tests. e.g. pytest, jest (js), phpunit, JUnit (java) etc ...
 	echo "no integration tests"
 
 security-sast: ## launch static application security testing (SAST).
 	$(DC) gosec ./...
 
 run: ## Locally run the application.
-	docker run --rm ${CONTAINER_IMAGE}:${CONTAINER_TAG}
+	docker run --rm -p 80:8080 ${CONTAINER_IMAGE}:${CONTAINER_TAG}
 
-watch: dev-up ## Hot reloading for development.
+watch: dev-up ## Hot reloading for development.
 
 build: ## Build the application.
 	docker build -t ${CONTAINER_IMAGE}:${CONTAINER_TAG} .
