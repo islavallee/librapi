@@ -1,7 +1,14 @@
-CONTAINER_IMAGE = slavallee/librapi
+CONTAINER_IMAGE = islavallee/librapi
 CONTAINER_TAG ?= latest
-DC = docker-compose run --rm api 
+GROUP_ID = $(shell id -g)
+NAMESPACE = dev
+RELEASE_NAME = librapi
+USER_ID = $(shell id -u)
+USERNAME = jenkins
+
+DCAPI = docker-compose run --rm api
 DCDEV = docker-compose -f docker-compose.dev.yml
+DCHELM = docker-compose run --rm --user=$(USER_ID):$(GROUP_ID) -e HOME=/$(USERNAME) helm
 
 .SILENT: ;               # no need for @
 .ONESHELL: ;             # recipes execute in same shell
@@ -15,25 +22,25 @@ help: ## Show Help
 
 ###############GAZR###############
 
-init: ##  Bootstrap your application.
+init: ## Bootstrap your application.
 	docker-compose build
-	$(DC) go mod download	
+	$(DCAPI) go mod download
 
-style: ## Check lint.
-	$(DC) golint ./...
+style: go-lint ## Check lint.
+style: helm-lint
 
 complexity: ## Cyclomatic complexity check.
-	$(DC) gocyclo .
+	$(DCAPI) gocyclo .
 
 format: ## Format code.
-	$(DC) gofmt -w .
+	$(DCAPI) gofmt -w .
 
 test: test-unit ## Shortcut to launch all the test tasks (unit, functional and integration).
 test: test-functional
 test: test-integration
 
 test-unit: ## Launch unit tests.
-	$(DC) go test -v ./...
+	$(DCAPI) go test -v ./...
 
 test-functional: ## Launch functional tests. e.g behat, JBehave, Behave, CucumberJS, Cucumber etc...
 	echo "no functional tests"
@@ -42,7 +49,7 @@ test-integration: ## Launch integration tests. e.g. pytest, jest (js), phpunit, 
 	echo "no integration tests"
 
 security-sast: ## launch static application security testing (SAST).
-	$(DC) gosec ./...
+	$(DCAPI) gosec ./...
 
 run: ## Locally run the application.
 	docker run --rm -p 80:8080 ${CONTAINER_IMAGE}:${CONTAINER_TAG}
@@ -54,15 +61,51 @@ build: ## Build the application.
 
 ###############DEV###############
 
-dev-build:
+dev-build: ## DEV ENV - docker-compose build
 	$(DCDEV) build
 
-dev-up:
+dev-up: ## DEV ENV - docker-compose up
 	$(DCDEV) up -d
 	$(DCDEV) logs -f
 
-dev-logs:
+dev-logs: ## DEV ENV - docker-compose logs
 	$(DCDEV) logs -f
 
-dev-down:
+dev-down: ## DEV ENV - docker-compose down
 	$(DCDEV) down
+
+###############GO##############
+
+go-lint: ## GO APP - Check lint on Go app.
+	$(DCAPI) golint ./...
+
+###############HELM###############
+
+helm-lint: ## HELM - Check lint on helm chart.
+	$(DCHELM) lint librapi/.
+
+helm-template: ## HELM - Compile template
+	$(DCHELM) template librapi/.
+
+helm-package: ## HELM - Build helm package
+	mkdir -p build/helm/
+	$(DCHELM) package librapi/. -d build/helm/
+
+helm-install: ## HELM - Install app
+	helm install -n ${NAMESPACE} ${RELEASE_NAME} helm/librapi/.
+
+helm-upgrade:
+	helm upgrade -n ${NAMESPACE} ${RELEASE_NAME} helm/librapi/.
+
+helm-ls:
+	helm ls -n ${NAMESPACE}
+
+helm-uninstall:
+	helm uninstall -n ${NAMESPACE} ${RELEASE_NAME}
+
+###############MICROK8S###############
+
+image-push: ## push local image to microk8s image cache
+	mkdir -p build/docker
+	docker save -o build/docker/librapi.tar ${CONTAINER_IMAGE}:${CONTAINER_TAG}
+	sudo microk8s ctr image import build/docker/librapi.tar

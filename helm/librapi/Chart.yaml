@@ -1,0 +1,6 @@
+apiVersion: v2
+name: librapi
+description: A Helm chart to deploy librapi
+type: application
+version: 0.1.0
+appVersion: 0.1.0

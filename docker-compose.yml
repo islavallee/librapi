@@ -5,3 +5,9 @@ services:
     working_dir: /go/src/github.com/islavallee/librapi
     volumes:
       - ./:/go/src/github.com/islavallee/librapi
+
+  helm:
+    image: alpine/helm:3.4.2
+    volumes:
+      - ./build/:/apps/build
+      - ./helm/:/apps
