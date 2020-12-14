@@ -4,17 +4,24 @@ import (
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/islavallee/librapi/pkg/application"
+	"github.com/islavallee/librapi/pkg/storage"
 )
 
 type Handler struct {
-	engine *gin.Engine
+	engine  *gin.Engine
+	librapi *application.Librapi
 }
 
 // NewHandler create a new http handler with routing handlers
 func NewHandler() *Handler {
+	repository := storage.NewBoltDB("/var/librapi/librapi.db")
 
 	h := &Handler{
 		engine: gin.Default(),
+		librapi: application.NewLibrapi(
+			repository,
+		),
 	}
 
 	corsConfig := cors.DefaultConfig()
@@ -23,6 +30,10 @@ func NewHandler() *Handler {
 	h.engine.Use(cors.New(corsConfig))
 
 	h.engine.GET("/hc", h.Healthcheck)
+	h.engine.POST("/datas", h.PostData)
+	h.engine.GET("/datas/:key", h.GetData)
+	h.engine.PUT("/datas/:key", h.PutData)
+	h.engine.DELETE("/datas/:key", h.DeleteData)
 
 	return h
 }

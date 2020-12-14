@@ -11,6 +11,7 @@ RUN go get \
  github.com/fzipp/gocyclo/cmd/gocyclo \
  github.com/securego/gosec/v2/cmd/gosec
 
+RUN mkdir -p /var/librapi
 WORKDIR /go/src/github.com/islavallee/librapi/
 
 EXPOSE 8080
