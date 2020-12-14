@@ -1,0 +1,182 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "0.1.0",
+    "title": "Librapi - the key value storage api"
+  },
+  "basePath": "/",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "host": "librapi.local",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/datas": {
+      "post": {
+        "description": "Save a value in storage using the key as reference",
+        "summary": "Save a Key Value pair",
+        "operationId": "data-post",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "description": "Key for your data",
+            "name": "key-value",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/datas.KV"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Key Value Stored"
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/datas.error"
+            }
+          }
+        }
+      }
+    },
+    "/datas/{key}": {
+      "delete": {
+        "description": "Delete the value in storage",
+        "summary": "Delete Stored Value",
+        "operationId": "data-delete",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "description": "Data key",
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Key Value has been deleted from the store"
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/datas.error"
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "Get a value in storage matching the key",
+        "summary": "Get Stored Value",
+        "operationId": "data-get",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "description": "Data key",
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Key Value from the store",
+            "schema": {
+              "$ref": "#/definitions/datas.KV"
+            }
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/datas.error"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replace the value in storage",
+        "summary": "Put Value",
+        "operationId": "data-put",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "description": "Data key",
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Value for your data",
+            "name": "value",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/datas.V"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Key Value Stored"
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/datas.error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "datas.KV": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "datas.V": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "datas.error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
+
+

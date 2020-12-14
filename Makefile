@@ -56,7 +56,7 @@ run: ## Locally run the application.
 
 watch: dev-up ## Hot reloading for development.
 
-build: ## Build the application.
+buildd: ## Build the application.
 	docker build -t $(CONTAINER_IMAGE):$(CONTAINER_TAG) .
 
 ###############DEV###############
@@ -110,5 +110,18 @@ push-image: ## push local image to microk8s image cache
 	docker save -o build/docker/librapi.tar ${CONTAINER_IMAGE}:${CONTAINER_TAG}
 	sudo microk8s ctr image import build/docker/librapi.tar
 
-create-storage-class:
+create-storage-class: ## Create the storage class in your microk8s cluster
 	kubectl apply -f helm/librapi/storageClass.yaml
+
+create-namespace: ## Create the namespace in your microk8s cluster
+	kubectl create namespace $(NAMESPACE)
+
+add-host: ## Add librapi.local to your /etc/hosts (you may need to enter your password)
+	grep -qxF '127.0.0.1    librapi.local' /etc/hosts || sudo sh -c "echo '127.0.0.1    librapi.local' >> /etc/hosts"
+
+librapi-in-mk8s: buildd ## All in one command to start the app in a microk8s cluster
+librapi-in-mk8s: push-image
+librapi-in-mk8s: create-storage-class
+librapi-in-mk8s: create-namespace
+librapi-in-mk8s: helm-install
+librapi-in-mk8s: add-host
