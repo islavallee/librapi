@@ -71,3 +71,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+pvc:
+  enabled: true

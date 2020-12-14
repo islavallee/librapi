@@ -43,6 +43,11 @@ spec:
             httpGet:
               path: /hc
               port: http
+          volumeMounts:
+            {{- if .Values.pvc.enabled }}
+            - mountPath: /var/librapi
+              name: {{ include "librapi.fullname" . }}-persistent-storage
+            {{- end}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -57,3 +62,9 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        {{- if .Values.pvc.enabled }}
+        - name: {{ include "librapi.fullname" . }}-persistent-storage
+          persistentVolumeClaim:
+            claimName: {{ include "librapi.fullname" . }}-pv-claim
+        {{- end}}

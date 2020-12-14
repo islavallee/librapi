@@ -52,12 +52,12 @@ security-sast: ## launch static application security testing (SAST).
 	$(DCAPI) gosec ./...
 
 run: ## Locally run the application.
-	docker run --rm -p 80:8080 ${CONTAINER_IMAGE}:${CONTAINER_TAG}
+	docker run --rm -p 80:8080 $(CONTAINER_IMAGE):$(CONTAINER_TAG)
 
 watch: dev-up ## Hot reloading for development.
 
 build: ## Build the application.
-	docker build -t ${CONTAINER_IMAGE}:${CONTAINER_TAG} .
+	docker build -t $(CONTAINER_IMAGE):$(CONTAINER_TAG) .
 
 ###############DEV###############
 
@@ -92,20 +92,23 @@ helm-package: ## HELM - Build helm package
 	$(DCHELM) package librapi/. -d build/helm/
 
 helm-install: ## HELM - Install app
-	helm install -n ${NAMESPACE} ${RELEASE_NAME} helm/librapi/.
+	helm install -n $(NAMESPACE) $(RELEASE_NAME) helm/librapi/.
 
 helm-upgrade:
-	helm upgrade -n ${NAMESPACE} ${RELEASE_NAME} helm/librapi/.
+	helm upgrade -n $(NAMESPACE) $(RELEASE_NAME) helm/librapi/.
 
 helm-ls:
-	helm ls -n ${NAMESPACE}
+	helm ls -n $(NAMESPACE)
 
 helm-uninstall:
-	helm uninstall -n ${NAMESPACE} ${RELEASE_NAME}
+	helm uninstall -n $(NAMESPACE) $(RELEASE_NAME)
 
 ###############MICROK8S###############
 
-image-push: ## push local image to microk8s image cache
+push-image: ## push local image to microk8s image cache
 	mkdir -p build/docker
 	docker save -o build/docker/librapi.tar ${CONTAINER_IMAGE}:${CONTAINER_TAG}
 	sudo microk8s ctr image import build/docker/librapi.tar
+
+create-storage-class:
+	kubectl apply -f helm/librapi/storageClass.yaml

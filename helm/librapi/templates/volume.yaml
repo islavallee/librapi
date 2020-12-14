@@ -1,0 +1,15 @@
+{{- if .Values.pvc.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "librapi.fullname" . }}-pv-claim
+  labels:
+{{ include "librapi.labels" . | indent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: dev-sc
+  resources:
+    requests:
+      storage: 32Mi
+{{- end -}}
